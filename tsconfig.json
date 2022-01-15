@@ -13,6 +13,7 @@
     /* Language and Environment */
     "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
      "lib": [
+       "ES2015.Proxy",
        "DOM",
        "ESNext"
      ],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
@@ -101,7 +102,11 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
+  "ts-node": {
+    "transpileOnly": true
+  },
   "files": [
-    "./src/event-bus/event-bus.ts"
+    "./src/event-bus.ts",
+    "./src/private-proxy.ts"
   ]
 }
