@@ -13,6 +13,7 @@
     /* Language and Environment */
     "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
      "lib": [
+       "ES2015",
        "ES2015.Proxy",
        "DOM",
        "ESNext"
@@ -107,6 +108,7 @@
   },
   "files": [
     "./src/event-bus.ts",
-    "./src/private-proxy.ts"
+    "./src/private-proxy.ts",
+    "./src/block/block.ts"
   ]
 }
