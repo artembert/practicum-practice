@@ -5,6 +5,7 @@ export class Block<Props extends object = {}> {
     INIT: "init",
     FLOW_CDM: "flow:component-did-mount",
     FLOW_RENDER: "flow:render",
+    FLOW_CDU: "flow:component-did-update",
   } as const;
 
   _element: HTMLElement | null = null;
@@ -31,6 +32,7 @@ export class Block<Props extends object = {}> {
   _registerEvents(eventBus: EventBus): void {
     eventBus.on(Block.EVENTS.INIT, this.init.bind(this));
     eventBus.on(Block.EVENTS.FLOW_CDM, this._componentDidMount.bind(this));
+    eventBus.on(Block.EVENTS.FLOW_CDU, this._componentDidUpdate.bind(this));
     eventBus.on(Block.EVENTS.FLOW_RENDER, this._render.bind(this));
   }
 
@@ -41,11 +43,12 @@ export class Block<Props extends object = {}> {
 
   init() {
     this._createResources();
-    this.eventBus().emit(Block.EVENTS.FLOW_RENDER);
+    this.eventBus().emit(Block.EVENTS.FLOW_CDM);
   }
 
   _componentDidMount() {
     this.componentDidMount();
+    this.eventBus().emit(Block.EVENTS.FLOW_RENDER);
   }
 
   // Может переопределять пользователь, необязательно трогать
@@ -55,13 +58,16 @@ export class Block<Props extends object = {}> {
     this.eventBus().emit(Block.EVENTS.FLOW_CDM);
   }
 
-  _componentDidUpdate(oldProps: Props, newProps: Props) {
+  _componentDidUpdate(oldProps: Props, newProps: Props): void {
     const response = this.componentDidUpdate(oldProps, newProps);
+    if (response) {
+      this.eventBus().emit(Block.EVENTS.FLOW_RENDER);
+    }
   }
 
   // Может переопределять пользователь, необязательно трогать
   componentDidUpdate(oldProps: Props, newProps: Props): boolean {
-    return true;
+    return oldProps !== newProps;
   }
 
   setProps = (nextProps: Props) => {
@@ -69,7 +75,7 @@ export class Block<Props extends object = {}> {
       return;
     }
 
-    Object.assign(this.props, nextProps);
+    return {...this.props, nextProps};
   };
 
   get element(): HTMLElement | null {
@@ -100,9 +106,13 @@ export class Block<Props extends object = {}> {
   _makePropsProxy(props: Props): Props {
     const self = this;
     return new Proxy<Props>(props, {
-      set(target: Partial<Props>, prop: string | symbol, value: any): boolean {
-        target[prop] = value;
-        self.eventBus().emit(Block.EVENTS.FLOW_RENDER);
+      set: (
+        target: Partial<Props>,
+        prop: string | symbol,
+        value: any
+      ): boolean => {
+        target[prop as keyof typeof target] = value;
+        this.eventBus().emit(Block.EVENTS.FLOW_RENDER);
         return true;
       },
       deleteProperty(): boolean {
