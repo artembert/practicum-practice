@@ -109,6 +109,7 @@
   "files": [
     "./src/event-bus.ts",
     "./src/private-proxy.ts",
-    "./src/block/block.ts"
+    "./src/block/block.ts",
+    "./src/fetch/fetch.ts"
   ]
 }
